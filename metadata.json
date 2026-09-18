@@ -1,0 +1,6 @@
+{
+  "name": "VERICERT",
+  "description": "Blockchain-based Experience Certificate Verification System with Genesis Block and tamper detection. Verify experience. Trust the record.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
