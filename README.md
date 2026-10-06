@@ -2,6 +2,16 @@
 
 > **"Verify experience. Trust the record."**
 
+### 🌐 Live Working Demo
+
+- **Live Application Demo (Shared Public Link):**  
+  👉 **[https://ais-pre-brbiz7gti5vvazobunp7di-614781592914.asia-east1.run.app](https://ais-pre-brbiz7gti5vvazobunp7di-614781592914.asia-east1.run.app)**
+
+- **Development Environment URL:**  
+  👉 **[https://ais-dev-brbiz7gti5vvazobunp7di-614781592914.asia-east1.run.app](https://ais-dev-brbiz7gti5vvazobunp7di-614781592914.asia-east1.run.app)**
+
+---
+
 VERICERT is an enterprise-grade, blockchain-based Experience Certificate Verification System engineered to create an immutable, tamper-evident record of employee experience credentials anchored by a primordial **Genesis Block (Block #0)**.
 
 ---
