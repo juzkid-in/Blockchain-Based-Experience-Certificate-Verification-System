@@ -50,15 +50,24 @@ process.on("SIGTERM", () => {
 
 // Proxy helper to Python Blockchain Engine
 function proxyToPython(req: express.Request, res: express.Response) {
+  const reqHeaders = { ...req.headers };
+  delete reqHeaders.connection;
+  delete reqHeaders["keep-alive"];
+  delete reqHeaders["transfer-encoding"];
+  delete reqHeaders.host;
+
   const options: http.RequestOptions = {
     hostname: "127.0.0.1",
     port: PYTHON_PORT,
     path: req.originalUrl,
     method: req.method,
     headers: {
-      ...req.headers,
-      host: `127.0.0.1:${PYTHON_PORT}`
-    }
+      ...reqHeaders,
+      host: `127.0.0.1:${PYTHON_PORT}`,
+      connection: "close"
+    },
+    agent: false,
+    timeout: 8000
   };
 
   const proxyReq = http.request(options, (proxyRes) => {
@@ -71,12 +80,25 @@ function proxyToPython(req: express.Request, res: express.Response) {
     proxyRes.pipe(res);
   });
 
+  proxyReq.on("timeout", () => {
+    proxyReq.destroy();
+    if (!res.headersSent) {
+      res.setHeader("Content-Type", "application/json");
+      res.status(504).json({
+        error: "Gateway Timeout: Blockchain service did not respond in time."
+      });
+    }
+  });
+
   proxyReq.on("error", (err) => {
     console.error(`[API Proxy Error] ${req.method} ${req.originalUrl}:`, err.message);
-    res.status(503).json({
-      error: "Python Blockchain service initializing, please retry shortly.",
-      detail: err.message
-    });
+    if (!res.headersSent) {
+      res.setHeader("Content-Type", "application/json");
+      res.status(503).json({
+        error: "Python Blockchain service initializing, please retry shortly.",
+        detail: err.message
+      });
+    }
   });
 
   if (req.body && Object.keys(req.body).length > 0) {

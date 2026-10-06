@@ -32,16 +32,23 @@ export default function App() {
 
   const refreshGlobalData = async () => {
     try {
-      const [s, a, l] = await Promise.all([
+      const [statsResult, activitiesResult, logsResult] = await Promise.allSettled([
         fetchStats(),
         fetchActivities(),
         fetchVerificationLogs(),
       ]);
-      setStats(s);
-      setActivities(a);
-      setVerificationLogs(l);
+
+      if (statsResult.status === "fulfilled" && statsResult.value) {
+        setStats(statsResult.value);
+      }
+      if (activitiesResult.status === "fulfilled" && Array.isArray(activitiesResult.value)) {
+        setActivities(activitiesResult.value);
+      }
+      if (logsResult.status === "fulfilled" && Array.isArray(logsResult.value)) {
+        setVerificationLogs(logsResult.value);
+      }
     } catch (err) {
-      console.error("Error refreshing global data:", err);
+      console.warn("Background data sync deferred:", err);
     }
   };
 

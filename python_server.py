@@ -9,7 +9,7 @@ import json
 import os
 import re
 import sys
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 from blockchain import blockchain_instance
@@ -18,13 +18,17 @@ PORT = int(os.environ.get("PYTHON_SERVER_PORT", 5001))
 
 
 class VericertAPIHandler(BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
     def _set_headers(self, status=200, content_type="application/json"):
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        self.send_header("Connection", "close")
         self.end_headers()
+        self.close_connection = True
 
     def do_OPTIONS(self):
         self._set_headers(200)
@@ -227,7 +231,8 @@ def run_server():
     # Preload demo data so first load has rich certificates
     blockchain_instance.load_demo_data()
     server_address = ("127.0.0.1", PORT)
-    httpd = HTTPServer(server_address, VericertAPIHandler)
+    httpd = ThreadingHTTPServer(server_address, VericertAPIHandler)
+    httpd.daemon_threads = True
     print(f"VERICERT Python Core running on http://127.0.0.1:{PORT}")
     try:
         httpd.serve_forever()
